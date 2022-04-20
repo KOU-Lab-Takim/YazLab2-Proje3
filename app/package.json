@@ -2,10 +2,13 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
     "i": "^0.3.7",
     "neovis.js": "^1.6.0",
     "prop-types": "^15.8.1",

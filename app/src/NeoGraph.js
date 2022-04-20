@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import useResizeAware from "react-resize-aware";
 import PropTypes from "prop-types";
 import Neovis from "neovis.js/dist/neovis.js";
+import axios from 'axios'
 
 const NeoGraph = props => {
   const {
@@ -23,6 +24,7 @@ const NeoGraph = props => {
       server_url: neo4jUri,
       server_user: neo4jUser,
       server_password: neo4jPassword,
+      arrows : false,
       labels: {
         Author: {
           caption: "fullname",
@@ -31,28 +33,50 @@ const NeoGraph = props => {
             size : 15,
           }
         },
-        Article : {
-          caption: "article_id",
+        Publication : {
+          caption: "publication_id",
           size: 1.0,
           font : {
             size : 10
           }
-        }
+        },
+        Publisher: {
+          caption: "name",
+          size: 1.5,
+          font : {
+            size : 10
+          }
+        },
       },
       relationships: {
-        WRITTEN_BY: {
+        YAYIN_YAZARI: {
           captions: "name",
           thickness: "count",
         },
-        CO_AUTHOR:{
+        ORTAK_ÇALIŞIR:{
           captions: "name",
           thickness: "count",
-        }
+        },
+        YAYINLANIR:{
+          captions: "name",
+          thickness: "count",
+        },
       },
       initial_cypher: initial_cypher
     };
     const vis = new Neovis(config);
     vis.render();
+  
+    vis.registerOnEvent("completed", (e)=>{ 
+      vis["_network"].on("click", (event)=>{ 
+          console.log(event.nodes[0]);
+
+          axios.get('/get_by_id/'+event.nodes[0]).then(res => {
+            console.log(res.data);
+          })
+          });
+    });
+  
   }, [neo4jUri, neo4jUser, neo4jPassword, initial_cypher]);
 
   return (

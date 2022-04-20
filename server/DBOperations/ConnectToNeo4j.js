@@ -1,7 +1,9 @@
 import neo4j from 'neo4j-driver';
-export default function ConnectToNeo4j(){
+import dotenv from 'dotenv';
 
-    return neo4j.driver('bolt://3.91.207.238:7687',
-                  neo4j.auth.basic('neo4j', 'file-pupils-kicks'), 
+export default function ConnectToNeo4j(){
+    dotenv.config()
+    return neo4j.driver(process.env.REACT_APP_BOLT_URI,
+                  neo4j.auth.basic(process.env.REACT_APP_USER, process.env.REACT_APP_PASSWORD), 
                   {/* encrypted: 'ENCRYPTION_OFF' */});
 } 
