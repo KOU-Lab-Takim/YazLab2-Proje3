@@ -18,12 +18,12 @@ async function addAuthor(author) {
     //console.log("aa")
     if (result.records && result.records.length === 0) {
         //console.log("bb")
-        const query = "CREATE (a:Author {author_id : $author_id, name : $name, surname : $surname}) RETURN a";
+        const query = "CREATE (a:Author {author_id : $author_id, name : $name, surname : $surname, fullname : $fullname}) RETURN a";
         const params = {
             author_id: author.author_id,
             name: author.name,
             surname: author.surname,
-            fullname: author.name + author.surname
+            fullname: author.name + " " +author.surname
         };
         const result = await RunCommand(query, params);
         //console.log(result);
@@ -69,8 +69,13 @@ async function connnectAuthorToAuthor(author1, author2) {
     //console.log(result);
 }
 
-for(let z=0; z<files.length; z++){
-    fs.readFile(__dirname + '/Dosyalar/' + files[z], async function (err, data) {
+async function delete_duplicate_relationships(){
+    const query = "match ()-[r]->() match (s)-[r]->(e) with s,e,type(r) as typ, tail(collect(r)) as coll foreach(x in coll | delete x)"
+    const result = await RunCommand(query);
+}
+
+async function write_file_to_database(filepath){
+    fs.readFile(filepath, function (err, data) {
         parser.parseString(data, async function (err, result) {
             let name = result.dblpperson['$'].name;
             let sp = name.split(" ");
@@ -90,9 +95,9 @@ for(let z=0; z<files.length; z++){
                 let _article = result.dblpperson.r[j]
     
                 if(!_article.article)
-                    _article = _article.inproceedings[0]
-                else
-                    _article = _article.article[0]
+                    return
+                
+                _article = _article.article[0]
 
                 let article_key = _article.$['key'];
                 let article_date = _article.$['mdate'];
@@ -153,3 +158,9 @@ for(let z=0; z<files.length; z++){
     });
 }
 
+
+/* for(let z=0; z<files.length; z++){
+    await write_file_to_database(__dirname + '/Dosyalar/' + files[z])
+} */
+
+delete_duplicate_relationships()

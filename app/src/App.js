@@ -14,7 +14,7 @@ const App = () => {
         neo4jUri={NEO4J_URI}
         neo4jUser={NEO4J_USER}
         neo4jPassword={NEO4J_PASSWORD}
-        initial_cypher="match (a:Author)-[k:KNOWS] return p,p2,k"
+        initial_cypher="Match (n)-[r]->(m) Return n,r,m"
       />
     </div>
   );

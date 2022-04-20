@@ -24,15 +24,30 @@ const NeoGraph = props => {
       server_user: neo4jUser,
       server_password: neo4jPassword,
       labels: {
-        Person: {
-          caption: "name",
+        Author: {
+          caption: "fullname",
+          size: 3.0,
+          font : {
+            size : 15,
+          }
         },
+        Article : {
+          caption: "article_id",
+          size: 1.0,
+          font : {
+            size : 10
+          }
+        }
       },
       relationships: {
-        KNOWS: {
+        WRITTEN_BY: {
           captions: "name",
           thickness: "count",
         },
+        CO_AUTHOR:{
+          captions: "name",
+          thickness: "count",
+        }
       },
       initial_cypher: initial_cypher
     };
@@ -73,7 +88,7 @@ const ResponsiveNeoGraph = props => {
   const [resizeListener, sizes] = useResizeAware();
 
   const side = Math.max(sizes.width, sizes.height) / 2;
-  const neoGraphProps = { ...props, width: side, height: side };
+  const neoGraphProps = { ...props, width: side*2, height: side-150 };
   return (
     <div style={{ position: "relative" }}>
       {resizeListener}
