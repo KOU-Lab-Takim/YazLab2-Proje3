@@ -245,11 +245,11 @@ async function write_file_to_database(filepath) {
     });
 }
 
-
-/* for (let z = 0; z < files.length; z++) {
-    await write_file_to_database(__dirname + '/Dosyalar/' + files[z])
-} */
-
-await write_file_to_database(__dirname + '/Dosyalar/' + "yasar_becerikli.xml")
+let TIME_INTERVAL = 10000;
+for (let z = 0; z < files.length; z++) {
+    setTimeout(() => {
+        write_file_to_database(__dirname + '/Dosyalar/' + files[z])
+    }, TIME_INTERVAL * z);
+} 
 
 await delete_duplicate_relationships()

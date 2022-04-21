@@ -7,7 +7,7 @@ import axios from 'axios';
 function AddPublishmentPage() {
     const page_list = ReturnPageList()
     const [publishmentInfo, setPublishmentInfo] = React.useState({
-        "author_id" : " ", "author_name" : "", "author_surname" : "", "name" : "",
+        "author_id" : "", "author_name" : "", "author_surname" : "", "name" : "",
         "year" : "", "publisher" : "", "type" : ""
     })
 
