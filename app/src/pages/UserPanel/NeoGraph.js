@@ -13,7 +13,9 @@ const NeoGraph = props => {
     neo4jUri,
     neo4jUser,
     neo4jPassword,
-    initial_cypher
+    initial_cypher,
+    setCypher,
+    generateCypher
   } = props;
 
   const visRef = useRef();
@@ -73,11 +75,16 @@ const NeoGraph = props => {
 
           axios.get('/get_by_id/'+event.nodes[0]).then(res => {
             console.log(res.data);
+            console.log(res.data.labels[0])
+            if(res.data.labels[0] === "Author"){
+              props.setCypher(props.generateCypher(res.data.properties.fullname))
+            }
+            console.log(res.data.properties.fullname)
           })
           });
     });
   
-  }, [neo4jUri, neo4jUser, neo4jPassword, initial_cypher]);
+  }, [neo4jUri, neo4jUser, neo4jPassword, initial_cypher, setCypher, props]);
 
   return (
     <div
@@ -94,7 +101,7 @@ const NeoGraph = props => {
 
 NeoGraph.defaultProps = {
   width: 1200,
-  height: 600,
+  height: 400,
   backgroundColor: "#d3d3d3",
 };
 

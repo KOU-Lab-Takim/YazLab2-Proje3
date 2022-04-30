@@ -23,50 +23,26 @@ app.get('/get_by_id/:id', async (req, res) => {
 app.post('/add_publication', async (req, res) => {
     const { author_id, author_name, author_surname, name, year, publisher, type } = req.body
 
-    // check author is exist and create if not
-    const checkAuthorQuery = `MATCH (n:Author) WHERE n.id = $author_id OR (n.name = $author_name AND n.surname = $author_surname) RETURN n`
-    const checkAuthorResult = await RunCommand( checkAuthorQuery , { author_id: Number(author_id), author_name: author_name, author_surname: author_surname })
-    let author = null
-    checkAuthorResult.records.forEach(record => {
-        author = record.get('n')
-    })
-    if(author == null) {
-        console.log("Author not found. Creating new author.")
-        const addAuthorQuery = `CREATE (n:Author {name: $author_name, surname: $author_surname, fullname: $author_fullname}) RETURN n`
-        const addAuthorResult = await RunCommand( addAuthorQuery , {author_fullname: author_name + " " + author_surname, author_name: author_name, author_surname: author_surname })
-        author = addAuthorResult.records[0].get('n')
-    }
-    else
-        console.log("Author found.")
-
-    console.log(author.identity)
-
-    // check publisher is exist and create if not
-    const checkPublisherQuery = `MATCH (n:Publisher) WHERE n.name = $publisher_name RETURN n`
-    const checkPublisherResult = await RunCommand( checkPublisherQuery , { publisher_name: publisher })
-    let _publisher = null
-    checkPublisherResult.records.forEach(record => {
-        _publisher = record.get('n')
-    })
-    if(_publisher == null) {
-        console.log("Publisher not found. Creating new publisher.")
-        const addPublisherQuery = `CREATE (n:Publisher {name: $publisher}) RETURN n`
-        const addPublisherResult = await RunCommand( addPublisherQuery , { publisher: publisher })
-        _publisher = addPublisherResult.records[0].get('n')
-    }
-    else
-      console.log("Publisher found.")
-      
+    
     let publication_id = publisher + "/" + year + "/" + author_surname
 
     // create new publishment and connect to author and publisher
-    const addPublishmentQuery = `MATCH (p) where ID(p) = $publisher_id
-                                MATCH (a) where ID(a) = $author_id
-                                CREATE (n:Publication {publication_id : $publication_id,title: $name, year: $year, type: $type})
-                                CREATE (n)-[:YAYINLANIR]->(p)
-                                CREATE (a)-[:YAYIN_YAZARI]->(n) 
-                                RETURN n`
-    const addPublishmentResult = await RunCommand( addPublishmentQuery , { publication_id : publication_id, name: name, year: year, type: type, publisher_id: _publisher.identity, author_id: author.identity })
+    let addPublishmentQuery = `MERGE (p:Publisher {name : $publisher_name})`
+    if(author_id != ""){
+        addPublishmentQuery += `MERGE (a:Author{author_id : $author_id, name: $author_name, surname:$author_surname})`
+    }
+    else{
+        addPublishmentQuery += `MERGE (a:Author{name: $author_name, surname:$author_surname})`
+    } 
+    addPublishmentQuery += `
+            MERGE (n:Publication {publication_id : $publication_id,title: $name, year: $year, type: $type})
+            MERGE (n)-[:YAYINLANIR]->(p)
+            MERGE (a)-[:YAYIN_YAZARI]->(n) 
+            RETURN n
+    `                  
+                                
+    const addPublishmentResult = await RunCommand( addPublishmentQuery , { name: name, year: year, type: type, publisher_name : publisher, 
+        author_id: author_id, author_name : author_name, author_surname : author_surname, publication_id : publication_id })
     const publishment = addPublishmentResult.records[0].get('n')
     console.log("KAYIT EKLENDI")
     res.status(200).json(publishment)
