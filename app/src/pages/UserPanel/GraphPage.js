@@ -11,7 +11,7 @@ function GraphPage(){
             neo4jUri={process.env.REACT_APP_BOLT_URI}
             neo4jUser={process.env.REACT_APP_USER}
             neo4jPassword={process.env.REACT_APP_PASSWORD}
-            initial_cypher="match(n)-[r]->(m) return *"/>
+            initial_cypher="match(n:Author{fullname:'Alev Mutlu'})-[r]->(m) return *"/>
         </div>
     )
     const page_list = ReturnPageList()

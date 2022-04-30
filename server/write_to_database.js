@@ -16,60 +16,38 @@ let hocalar_list = ["Abdurrahman Gün", "Ahmet Sayar", "Alev Mutlu", "A. Burak I
 "Sevinç Ilhan Omurca", "Suhap Sahin", "Yasar Becerikli", "Kerem Küçük", "Nevcihan Duru"]
 
 async function addAuthor(author) {
-    const query = "MATCH (a:Author {author_id : $author_id}) RETURN a";
+
+    const query = "MERGE (a:Author {author_id : $author_id, name : $name, surname : $surname, fullname : $fullname}) RETURN a";
     const params = {
-        author_id: author.author_id
+        author_id: author.author_id,
+        name: author.name,
+        surname: author.surname,
+        fullname: author.name + " " + author.surname
     };
     const result = await RunCommand(query, params);
-    //console.log("aa")
-    if (result.records && result.records.length === 0) {
-        //console.log("bb")
-        const query = "CREATE (a:Author {author_id : $author_id, name : $name, surname : $surname, fullname : $fullname}) RETURN a";
-        const params = {
-            author_id: author.author_id,
-            name: author.name,
-            surname: author.surname,
-            fullname: author.name + " " + author.surname
-        };
-        const result = await RunCommand(query, params);
-        //console.log(result);
-    }
+    //console.log(result);
 }
 
 async function addPublication(publication) {
-    const query = "MATCH (a:Publication {publication : $publication_id}) RETURN a";
+    const query = "MERGE (a:Publication {publication_id : $id, title : $title, year : $year,date : $date, type:$type}) RETURN a";
     const params = {
-        publication_id: publication.publication_id
+        id: publication.publication_id,
+        title: publication.title,
+        year: publication.year,
+        date: publication.date,
+        type: publication.type
     };
     const result = await RunCommand(query, params);
-    if (result.records && result.records.length === 0) {
-        const query = "CREATE (a:Publication {publication_id : $id, title : $title, year : $year,date : $date, type:$type}) RETURN a";
-        const params = {
-            id: publication.publication_id,
-            title: publication.title,
-            year: publication.year,
-            date: publication.date,
-            type: publication.type
-        };
-        const result = await RunCommand(query, params);
-        //console.log(result);
-    }
+    //console.log(result);
 }
 
 async function addPublisher(publisher) {
-    const query = "MATCH (a:Publisher {name : $name}) RETURN a";
+    const query = "MERGE (a:Publisher {name : $name}) RETURN a";
     const params = {
         name: publisher.name
     };
     const result = await RunCommand(query, params);
-    if (result.records && result.records.length === 0) {
-        const query = "CREATE (a:Publisher {name : $name}) RETURN a";
-        const params = {
-            name: publisher.name
-        };
-        const result = await RunCommand(query, params);
-        //console.log(result);
-    }
+    //console.log(result);
 }
 
 async function connectPublicationToAuthor(publication, author) {
@@ -133,6 +111,28 @@ async function delete_duplicate_relationships() {
     const result = await RunCommand(query);
 }
 
+async function create_constraints(){
+
+    let query = "CREATE CONSTRAINT ON (a:Authors) ASSERT a.author_id IS UNIQUE"
+    let result = await RunCommand(query)
+
+    query = "CREATE CONSTRAINT ON (a:Publication) ASSERT a.publication_id IS UNIQUE"
+    result = await RunCommand(query)
+
+    query = "CREATE CONSTRAINT ON (a:Publisher) ASSERT a.name IS UNIQUE"
+    result = await RunCommand(query)
+}
+
+async function drop_constraints(){
+    let query = "DROP CONSTRAINT ON (a:Authors) ASSERT a.author_id IS UNIQUE"
+    let result = await RunCommand(query)
+
+    query = "DROP CONSTRAINT ON (a:Publication) ASSERT a.publication_id IS UNIQUE"
+    result = await RunCommand(query)
+
+    query = "DROP CONSTRAINT ON (a:Publisher) ASSERT a.name IS UNIQUE"
+    result = await RunCommand(query)
+}
 
 async function HandlePublication(_publication, author_id, type) {
     
@@ -245,11 +245,17 @@ async function write_file_to_database(filepath) {
     });
 }
 
-let TIME_INTERVAL = 10000;
-for (let z = 0; z < files.length; z++) {
-    setTimeout(() => {
-        write_file_to_database(__dirname + '/Dosyalar/' + files[z])
-    }, TIME_INTERVAL * z);
-} 
+async function main(){
+    //await create_constraints();
+    //await drop_constraints()
+    let TIME_INTERVAL = 5000;
+    for (let z = 0; z < files.length; z++) {
+        setTimeout(() => {
+            write_file_to_database(__dirname + '/Dosyalar/' + files[z])
+        }, TIME_INTERVAL * z);
+    } 
 
-await delete_duplicate_relationships()
+    await delete_duplicate_relationships()
+}
+
+main()
