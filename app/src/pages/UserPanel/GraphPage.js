@@ -1,8 +1,9 @@
 import { ResponsiveNeoGraph } from "./NeoGraph";
 import AppBarWithDrawer from '../../components/AppBarWithDrawer';
 import ReturnPageList from './ReturnPageList';
-import React, {useState} from 'react';
-
+import React, {useEffect, useState} from 'react';
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 function GraphPage(){
 
@@ -13,8 +14,22 @@ function GraphPage(){
         return a1,r,a2,r2,r3,p,pub`
     }
 
-    const [cypher, setCypher] = useState(generateCypher("Hikmetcan Ozcan"));
+    const [cypher, setCypher] = useState("");
+    let { id } = useParams();
 
+    useEffect(() => {
+        async function fetchData(){
+            if(id){
+                let res = await axios.get("/get_by_id/" + id)
+                setCypher(generateCypher(res.data.properties.fullname))
+            }
+            else{
+                setCypher("MATCH (n)-[r]->(m) RETURN *")
+            }
+        }
+        
+        fetchData()
+    }, [])
 
     const content = (
         <div>

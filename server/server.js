@@ -20,6 +20,71 @@ app.get('/get_by_id/:id', async (req, res) => {
     res.status(200).json(person)
 })
 
+app.get('/get_author', async (req, res) => {
+    const readQuery = `MATCH (n:Author) WHERE n.fullname = $name RETURN n`
+    console.log("NAME", req.query.name)
+    const readResult = await RunCommand( readQuery , { name: req.query.name })
+    let person = null
+    readResult.records.forEach(record => {
+        person = record.get('n')
+    })
+    res.status(200).json(person)
+})
+
+app.get('/search', async (req, res) => {
+    let query_key = {}
+    for (let key in req.query) {
+        if (req.query[key] !== "") {
+            query_key[key] = req.query[key]
+        }
+    }
+    let publications = []
+    let query = ""
+
+    if(req.query.writerName == "" && req.query.publishmentName == "" && req.query.publishmentYear == ""){
+        return res.status(200).json(publications)
+    }
+    
+    if(req.query.writerName){
+        query += `MATCH (n:Publication)-[r:YAYIN_YAZARI]->(a:Author)
+        WHERE a.fullname = $writerName
+        ` 
+    }
+    else{
+        query += `MATCH (n:Publication) `
+    }
+    if(req.query.publishmentName != ""){
+        if(req.query.writerName != ""){
+            query += `AND `
+        }
+        else{
+            query += `WHERE `
+        }
+        query += `n.title = $publishmentName `
+    }
+    if(req.query.publishmentYear != ""){
+        console.log(req.query)
+        if(req.query.writerName != "" || req.query.publishmentName != ""){
+            query += `AND `
+        }
+        else{
+            query += `WHERE `
+        }
+        query += `n.year = $publishmentYear `
+    }
+    query += `RETURN n`
+    console.log(query)
+    const readResult = await RunCommand( query , query_key )
+    if(readResult){
+        readResult.records.forEach(record => {
+            publications.push(record.get('n'))
+        })
+    }
+    
+    res.status(200).json(publications)
+})
+
+
 app.post('/add_publication', async (req, res) => {
     const { author_id, author_name, author_surname, name, year, publisher, type } = req.body
 

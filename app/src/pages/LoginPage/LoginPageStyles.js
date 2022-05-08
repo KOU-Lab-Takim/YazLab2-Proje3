@@ -4,7 +4,7 @@ const styles = {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor : '#cae7df',
+        backgroundColor: '#fafafa'
     },
     paper : {
         padding: '20px',

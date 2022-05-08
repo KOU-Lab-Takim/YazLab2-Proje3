@@ -13,7 +13,9 @@ const App = () => {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/add_publishment" element={<AddPublishmentPage />} />
         <Route path="/user/search" element={<SearchPage />} />
-        <Route path="/user/graph" element={<GraphPage />} />
+        <Route path="/user/graph" element={<GraphPage/>} />
+        <Route path="/user/graph/:id" element={<GraphPage/>} />
+
       </Routes>
     </BrowserRouter>
   );

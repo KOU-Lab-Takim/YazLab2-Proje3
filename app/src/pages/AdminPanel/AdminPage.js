@@ -8,7 +8,7 @@ function AdminPage(){
     return(
         <AppBarWithDrawer content={
             <div>
-                adfsafdasf
+                <h1>Yönetici Ana Sayfa</h1>
             </div>
         } 
         appBarHeader = "Admin Panel"
